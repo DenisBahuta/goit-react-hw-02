@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 import Options from "./components/Options/Options";
@@ -13,7 +13,15 @@ function App() {
     bad: 0,
   });
 
-  //функция updateFeedback позволяет отслеживать и обновлять количество различных типов обратной связи в приложении.
+  // Извлечение состояния из localStorage при загрузке компонента
+  useEffect(() => {
+    const stringiFeedback = localStorage.getItem("feedback");
+    if (stringiFeedback) {
+      setFeedback(JSON.parse(stringiFeedback));
+    }
+  }, []);
+
+  // Обновление состояния feedback и сохранение его в localStorage
   const updateFeedback = (feedbackType) => {
     setFeedback((prevFeedback) => ({
       ...prevFeedback,
@@ -31,6 +39,12 @@ function App() {
     setFeedback({ good: 0, neutral: 0, bad: 0 });
   };
 
+  // Сохранение состояния в localStorage при изменении
+  useEffect(() => {
+    localStorage.setItem("feedback", JSON.stringify(feedback));
+  }, [feedback]);
+
+  // Рендеринг компонентов Description, Options, Feedback и Notification
   return (
     <>
       <Description />
@@ -39,7 +53,7 @@ function App() {
         resetFeedback={resetFeedback}
         totalFeedback={totalFeedback}
       />
-      {totalFeedback > 0 ? ( // Проверяем, есть ли общая обратная связь, чтобы решить, рендерить ли компонент Feedback или Notification
+      {totalFeedback > 0 ? (
         <Feedback
           feedback={feedback}
           total={totalFeedback}
